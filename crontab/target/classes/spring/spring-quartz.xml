@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:**/quartz.properties" />
+		<property name="schedulerName" value="CrontabScheduler" />
+		<property name="startupDelay" value="30" />
+		<property name="applicationContextSchedulerContextKey" value="${context.key}" />
+		<property name="overwriteExistingJobs" value="true" />
+		<property name="triggers">
+			<list>
+				<ref bean="financeTrigger" />
+			</list>
+		</property>
+		<property name="jobDetails">
+			<list>
+				<ref bean="financeJobDetail" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="financeTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="financeJobDetail" />
+		<property name="cronExpression" value="0 50 23 * * ?" />
+	</bean>
+	
+	<bean id="financeJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.wjz.crontab.job.FinanceJob" />
+		<property name="durability" value="true" />
+	</bean>
+</beans>
